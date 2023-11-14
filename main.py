@@ -19,4 +19,3 @@ if __name__ == '__main__':
     bot = Bot(load_config()).__run__()
 #-------------------#
 #--------SCRIPT END-#
-#---KEKW EASTEREGG--#
