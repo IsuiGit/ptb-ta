@@ -1,5 +1,5 @@
 atnoticebot-16738a3f1d44.json
 main.ini
 token.json
-/tn_dev/
-/__pycache__/
+tn_dev/
+__pycache__/
