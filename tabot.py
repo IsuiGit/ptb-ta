@@ -90,7 +90,9 @@ class Bot:
         if query.data == 'exams':
             await context.bot.send_message(chat_id=update.effective_chat.id, text=self.__section_data_to_frame__(self.sheetName['exams']))
         elif query.data == 'wo_sec':
-            await context.bot.send_message(chat_id=update.effective_chat.id, text=self.__section_data_to_frame__(self.sheetName['wo']))
+            text = self.__section_data_to_frame__(self.sheetName['wo'])
+            for i in text:
+                await context.bot.send_message(chat_id=update.effective_chat.id, text=i)
         elif query.data == 'wo_sq':
             await context.bot.send_message(chat_id=update.effective_chat.id, text=self.__square_data_to_frame__(self.sheetName['wo']), parse_mode=constants.ParseMode.MARKDOWN_V2)
         else:
