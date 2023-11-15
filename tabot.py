@@ -21,7 +21,7 @@ class Bot:
             self.spreadsheetId = config[DIR_NAME]['spreadsheetId']
             self.sheetName = config[DIR_NAME]['sheetName']
             self.range = config[DIR_NAME]['range']
-            self.trusts = config[DIR_NAME]['trusts'].split('/')
+            self.trusts = config['BOTSETTINGS']['trusts'].split('/')
             self.service = self.__table_connect__()
             self.log = logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
         except Exception as e:

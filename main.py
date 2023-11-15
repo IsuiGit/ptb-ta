@@ -9,7 +9,7 @@ import asyncio
 def load_config():
     try:
         config = configparser.ConfigParser()
-        config.read('main.ini', encoding="utf-8")
+        config.read('main.ini', encoding='utf-8')
         return config
     except OSError:
         print('Configuration file not found!')
@@ -19,4 +19,4 @@ if __name__ == '__main__':
     bot = Bot(load_config()).__run__()
 #-------------------#
 #--------SCRIPT END-#
-#141123--T_T--------#
+#-----141123--T_T---#
