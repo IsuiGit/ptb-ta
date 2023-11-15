@@ -30,7 +30,7 @@ class SimpleDataFrame():
         return header
 
     def __square_dataframe_output__(self):
-        sec_frame = PrettyTable()
+        sq_frame = PrettyTable()
         sq_frame.field_names = self.frame.header
         sq_frame.add_rows([x.node for x in self.frame.nodes])
         sq_text_frame = '```\n{}```'.format(sq_frame.get_string())
