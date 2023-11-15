@@ -2,6 +2,7 @@
 #----IMPORT SECTION-#
 import logging
 import httplib2
+import json
 import apiclient.discovery
 from frames import SimpleDataFrame
 from oauth2client.service_account import ServiceAccountCredentials
@@ -44,6 +45,7 @@ class Bot:
         if self.service != None and self.spreadsheetId:
             try:
                 results = self.service.spreadsheets().values().batchGet(spreadsheetId = self.spreadsheetId, ranges = [f'{name}!{self.range}'], valueRenderOption = 'FORMATTED_VALUE', dateTimeRenderOption = 'FORMATTED_STRING').execute()
+
                 sheet_values = results['valueRanges'][0]['values']
                 return sheet_values[0], sheet_values[1:]
             except Exception as e:
@@ -72,6 +74,15 @@ class Bot:
             print('__exception__in: __square_data_to_frame__() completed with an error\n', repr(e))
 
     async def __start__(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
+        user_data = context.user_data
+        with open('user_info.json', 'r') as file:
+            user_info = json.load(file)
+
+        if update.message.from_user.username not in user_info:
+            await context.bot.send_message(chat_id=update.effective_chat.id,
+                                           text="Привет! Пожалуйста, напиши свое имя и фамилию:")
+            return
+
         keyboard = [
             [
                 InlineKeyboardButton("Экзамены", callback_data='exams'),
@@ -82,23 +93,78 @@ class Bot:
             ],
         ]
         reply_markup = InlineKeyboardMarkup(keyboard)
-        await context.bot.send_message(chat_id=update.effective_chat.id, text="Я бот Академии ТОР СПб Удельная!", reply_markup=reply_markup)
+        await context.bot.send_message(chat_id=update.effective_chat.id,
+                                       text=f"Привет, {user_info[update.message.from_user.username]}!",
+                                       reply_markup=reply_markup)
+
+    async def set_name(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
+        user_data = context.user_data
+        user_id = update.effective_chat.id
+        full_name = update.message.text.strip()
+        keyboard = [
+            [
+                InlineKeyboardButton("Экзамены", callback_data='exams'),
+            ],
+            [
+                InlineKeyboardButton("Отработки (Список)", callback_data='wo_sec'),
+                InlineKeyboardButton("Отработки (Таблица)", callback_data='wo_sq'),
+            ],
+        ]
+
+        if 'name' not in user_data:
+            user_data['name'] = full_name
+            try:
+                with open('user_info.json', 'r') as file:
+                    user_info = json.load(file)
+            except FileNotFoundError:
+                user_info = {}
+            user_info[update.message.from_user.username] = user_data['name']
+            with open('user_info.json', 'w') as file:
+                json.dump(user_info, file)
+                reply_markup = InlineKeyboardMarkup(keyboard)
+            await context.bot.send_message(chat_id=user_id, text=f"Спасибо, {full_name}! Теперь ты зарегистрирован.", reply_markup=reply_markup)
+        else:
+            await context.bot.send_message(chat_id=user_id, text="Произошел мем")
+
+    async def __text_message_handler__(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
+        user_data = context.user_data
+
+        if 'name' not in user_data:
+            await self.set_name(update, context)
+        else:
+            # await context.bot.send_message(chat_id=update.effective_chat.id,
+            #                                text=f"Привет, {user_data['name']}! Ты уже зарегистрирован.")
+            await context.bot.send_message(chat_id=update.effective_chat.id,
+                                           text=f"Привет, Долбоеб! Ты уже зарегистрирован клоун.")
 
     async def __button__(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         query = update.callback_query
         await query.answer()
+        with open('user_info.json', 'r') as file:
+            user_info = json.load(file)
         if query.data == 'exams':
-            await context.bot.send_message(chat_id=update.effective_chat.id, text=self.__section_data_to_frame__(self.sheetName['exams']))
+            await context.bot.send_message(chat_id=update.effective_chat.id, text=self.__section_data_to_frame__(
+                self.sheetName['exams'], user_info[update.message.from_user.username]))
         elif query.data == 'wo_sec':
-            await context.bot.send_message(chat_id=update.effective_chat.id, text=self.__section_data_to_frame__(self.sheetName['wo']))
+            await context.bot.send_message(chat_id=update.effective_chat.id, text=self.__section_data_to_frame__(
+                self.sheetName['wo'], user_info[update.message.from_user.username]))
         elif query.data == 'wo_sq':
-            await context.bot.send_message(chat_id=update.effective_chat.id, text=self.__square_data_to_frame__(self.sheetName['wo']), parse_mode=constants.ParseMode.MARKDOWN_V2)
+            await context.bot.send_message(chat_id=update.effective_chat.id,
+                                           text=self.__square_data_to_frame__(self.sheetName['wo']),
+                                           parse_mode=constants.ParseMode.MARKDOWN_V2)
         else:
             pass
+
+    def __section_data_to_frame__(self, name, teacher_username):
+        try:
+            return SimpleDataFrame(self.__get_info__(name)).__section_dataframe_output__(teacher_username)
+        except Exception as e:
+            print('__exception__in: __section_data_to_frame__() completed with an error\n', repr(e))
 
     def __run__(self):
         application = ApplicationBuilder().token(self.api).build()
         application.add_handler(CommandHandler('start', self.__start__, filters=filters.Chat(username=self.trusts)))
+        application.add_handler(MessageHandler((filters.TEXT & ~filters.COMMAND), self.__text_message_handler__))
         application.add_handler(CallbackQueryHandler(self.__button__))
         application.run_polling()
 #-------------------#

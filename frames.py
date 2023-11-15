@@ -36,11 +36,19 @@ class SimpleDataFrame():
         sq_text_frame = '```\n{}```'.format(sq_frame.get_string())
         return sq_text_frame
 
-    def __section_dataframe_output__(self):
-        sec_frame = ''
-        for i in self.frame.nodes:
-            for j,k in zip(self.frame.header, i.node):
-                sec_frame += f'{j}: {k}\n'
-            sec_frame += '\n'
-        return sec_frame
+    # def __section_dataframe_output__(self, teacher_username):
+    #     sec_frame = ''
+    #     teacher_index = self.frame.header.index("Преподаватель")
+    #
+    #     for i in self.frame.nodes:
+    #         if i.node[teacher_index] == teacher_username:
+    #             for j, k in zip(self.frame.header, i.node):
+    #                 sec_frame += f'{j}: {k}\n'
+    #             sec_frame += '\n'
+    #
+    #     if not sec_frame:
+    #         sec_frame = "Нет данных для вашего преподавателя в данной таблице."
+    #
+    #     return sec_frame
+
 #-------------------#
