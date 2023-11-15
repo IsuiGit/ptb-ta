@@ -75,6 +75,8 @@ class Bot:
         keyboard = [
             [
                 InlineKeyboardButton("Экзамены", callback_data='exams'),
+            ],
+            [
                 InlineKeyboardButton("Отработки (Список)", callback_data='wo_sec'),
                 InlineKeyboardButton("Отработки (Таблица)", callback_data='wo_sq'),
             ],
