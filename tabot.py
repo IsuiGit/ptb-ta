@@ -75,8 +75,11 @@ class Bot:
 
     async def __start__(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         user_data = context.user_data
-        with open('user_info.json', 'r') as file:
-            user_info = json.load(file)
+        try:
+            with open('user_info.json', 'r') as file:
+                user_info = json.load(file)
+        except FileNotFoundError:
+            user_info = {}
 
         if update.message.from_user.username not in user_info:
             await context.bot.send_message(chat_id=update.effective_chat.id,
@@ -122,7 +125,8 @@ class Bot:
             with open('user_info.json', 'w') as file:
                 json.dump(user_info, file)
                 reply_markup = InlineKeyboardMarkup(keyboard)
-            await context.bot.send_message(chat_id=user_id, text=f"Спасибо, {full_name}! Теперь ты зарегистрирован.", reply_markup=reply_markup)
+            await context.bot.send_message(chat_id=user_id, text=f"Спасибо, {full_name}! Теперь ты зарегистрирован.",
+                                           reply_markup=reply_markup)
         else:
             await context.bot.send_message(chat_id=user_id, text="Произошел мем")
 
@@ -144,10 +148,10 @@ class Bot:
             user_info = json.load(file)
         if query.data == 'exams':
             await context.bot.send_message(chat_id=update.effective_chat.id, text=self.__section_data_to_frame__(
-                self.sheetName['exams'], user_info[update.message.from_user.username]))
+                self.sheetName['exams'], user_info[query.from_user.username]))
         elif query.data == 'wo_sec':
             await context.bot.send_message(chat_id=update.effective_chat.id, text=self.__section_data_to_frame__(
-                self.sheetName['wo'], user_info[update.message.from_user.username]))
+                self.sheetName['wo'], user_info[query.from_user.username]))
         elif query.data == 'wo_sq':
             await context.bot.send_message(chat_id=update.effective_chat.id,
                                            text=self.__square_data_to_frame__(self.sheetName['wo']),
