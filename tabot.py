@@ -83,7 +83,7 @@ class Bot:
 
         if update.message.from_user.username not in user_info:
             await context.bot.send_message(chat_id=update.effective_chat.id,
-                                           text="Привет! Пожалуйста, напиши свое имя и фамилию:")
+                                           text="Привет! Пожалуйста, напиши свою фамилию:")
             return
 
         keyboard = [
@@ -142,20 +142,32 @@ class Bot:
                                            text=f"Привет, Долбоеб! Ты уже зарегистрирован клоун.")
 
     async def __button__(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
+        keyboard = [
+            [
+                InlineKeyboardButton("Экзамены", callback_data='exams'),
+            ],
+            [
+                InlineKeyboardButton("Отработки (Список)", callback_data='wo_sec'),
+                InlineKeyboardButton("Отработки (Таблица)", callback_data='wo_sq'),
+            ],
+        ]
+        reply_markup = InlineKeyboardMarkup(keyboard)
+
         query = update.callback_query
         await query.answer()
         with open('user_info.json', 'r') as file:
             user_info = json.load(file)
         if query.data == 'exams':
             await context.bot.send_message(chat_id=update.effective_chat.id, text=self.__section_data_to_frame__(
-                self.sheetName['exams'], user_info[query.from_user.username]))
+                self.sheetName['exams'], user_info[query.from_user.username]), reply_markup=reply_markup)
         elif query.data == 'wo_sec':
-            await context.bot.send_message(chat_id=update.effective_chat.id, text=self.__section_data_to_frame__(
-                self.sheetName['wo'], user_info[query.from_user.username]))
+            text = self.__section_data_to_frame__(self.sheetName['wo'], "Кринжа насрал")
+            for i in text:
+                await context.bot.send_message(chat_id=update.effective_chat.id, text=i, reply_markup=reply_markup)
         elif query.data == 'wo_sq':
             await context.bot.send_message(chat_id=update.effective_chat.id,
                                            text=self.__square_data_to_frame__(self.sheetName['wo']),
-                                           parse_mode=constants.ParseMode.MARKDOWN_V2)
+                                           parse_mode=constants.ParseMode.MARKDOWN_V2, reply_markup=reply_markup)
         else:
             pass
 
