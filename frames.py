@@ -39,7 +39,6 @@ class SimpleDataFrame():
     def __section_dataframe_output__(self, teacher_username):
         sec_frame = ''
         teacher_index = self.frame.header.index("Преподаватель")
-        print(teacher_username)
 
         for i in self.frame.nodes:
             if i.node[teacher_index] == teacher_username:
