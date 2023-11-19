@@ -161,7 +161,7 @@ class Bot:
             await context.bot.send_message(chat_id=update.effective_chat.id, text=self.__section_data_to_frame__(
                 self.sheetName['exams'], user_info[query.from_user.username]), reply_markup=reply_markup)
         elif query.data == 'wo_sec':
-            text = self.__section_data_to_frame__(self.sheetName['wo'], "Кринжа насрал")
+            text = self.__section_data_to_frame__(self.sheetName['wo'], None)
             for i in text:
                 await context.bot.send_message(chat_id=update.effective_chat.id, text=i, reply_markup=reply_markup)
         elif query.data == 'wo_sq':
