@@ -42,7 +42,7 @@ class SimpleDataFrame():
         return sq_text_frame
 
     def __section_dataframe_output__(self, teacher_username):
-        if teacher_username != "Кринжа насрал":
+        if teacher_username != None:
             sec_frame = ''
             teacher_index = self.frame.header.index("Преподаватель")
 
