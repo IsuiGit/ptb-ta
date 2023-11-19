@@ -8,6 +8,9 @@ from fuzzywuzzy import fuzz
 MSG_LEN = 4096
 
 #-------------------#
+#-----CONST SECTION-#
+MSG_LEN = 4096
+#-------------------#
 #----HEADER SECTION-#
 class Header():
     def __init__(self, header):
@@ -38,8 +41,11 @@ class SimpleDataFrame():
         sq_frame = PrettyTable()
         sq_frame.field_names = self.frame.header
         sq_frame.add_rows([x.node for x in self.frame.nodes])
-        sq_text_frame = '```\n{}```'.format(sq_frame.get_string())
-        return sq_text_frame
+        if len(sq_frame.get_string()) < MSG_LEN:
+            sq_text_frame = '```\n{}```'.format(sq_frame.get_string())
+            return sq_text_frame
+        else:
+            return 'Слишком много символов\nИспользуйте опцию списка'
 
     def __section_dataframe_output__(self, teacher_username):
         if teacher_username != None:
@@ -72,5 +78,6 @@ class SimpleDataFrame():
                 p_sec_frame = [sec_frame[i:i + b * MSG_LEN] for i in range(0, b, MSG_LEN)]
                 p_sec_frame.append(sec_frame[-t:])
                 return p_sec_frame
+
 
 #-------------------#
