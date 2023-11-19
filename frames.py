@@ -2,6 +2,11 @@
 #----IMPORT SECTION-#
 import random
 from prettytable import PrettyTable
+from fuzzywuzzy import fuzz
+
+
+MSG_LEN = 4096
+
 #-------------------#
 #-----CONST SECTION-#
 MSG_LEN = 4096
@@ -42,18 +47,37 @@ class SimpleDataFrame():
         else:
             return 'Слишком много символов\nИспользуйте опцию списка'
 
-    def __section_dataframe_output__(self):
-        sec_frame = ''
-        for i in self.frame.nodes:
-            for j,k in zip(self.frame.header, i.node):
-                sec_frame += f'{j}: {k}\n'
-            sec_frame += '\n'
-        if len(sec_frame) < MSG_LEN:
-            return [sec_frame]
+    def __section_dataframe_output__(self, teacher_username):
+        if teacher_username != None:
+            sec_frame = ''
+            teacher_index = self.frame.header.index("Преподаватель")
+
+            for i in self.frame.nodes:
+                current_teacher_name = i.node[teacher_index]
+                token_sort_similarity = fuzz.token_sort_ratio(current_teacher_name, teacher_username)
+                if token_sort_similarity >= 80:
+                    for j, k in zip(self.frame.header, i.node):
+                        sec_frame += f'{j}: {k}\n'
+                    sec_frame += '\n'
+
+            if not sec_frame:
+                sec_frame = "Нет данных для вашего преподавателя в данной таблице."
+
+            return sec_frame
         else:
-            b = len(sec_frame)//MSG_LEN
-            t = len(sec_frame)%MSG_LEN
-            p_sec_frame = [sec_frame[i:i+b*MSG_LEN] for i in range(0, b, MSG_LEN)]
-            p_sec_frame.append(sec_frame[-t:])
-            return p_sec_frame
+            sec_frame = ''
+            for i in self.frame.nodes:
+                for j, k in zip(self.frame.header, i.node):
+                    sec_frame += f'{j}: {k}\n'
+                sec_frame += '\n'
+            if len(sec_frame) < MSG_LEN:
+                return [sec_frame]
+            else:
+                b = len(sec_frame) // MSG_LEN
+                t = len(sec_frame) % MSG_LEN
+                p_sec_frame = [sec_frame[i:i + b * MSG_LEN] for i in range(0, b, MSG_LEN)]
+                p_sec_frame.append(sec_frame[-t:])
+                return p_sec_frame
+
+
 #-------------------#
